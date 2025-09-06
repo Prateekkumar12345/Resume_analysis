@@ -243,6 +243,19 @@ class JobRoleMatcher:
             'advancement_potential': self._assess_advancement_potential(experience_years, compatibility_score)
         }
     
+    def _assess_advancement_potential(self, experience_years, compatibility_score):
+        """Assess career advancement potential based on experience and skills"""
+        if experience_years >= 8 and compatibility_score >= 80:
+            return "Excellent advancement potential - ready for senior/leadership positions"
+        elif experience_years >= 5 and compatibility_score >= 70:
+            return "Strong advancement potential - focus on leadership and strategic skills"
+        elif experience_years >= 3 and compatibility_score >= 60:
+            return "Good advancement potential - continue technical depth and leadership development"
+        elif experience_years >= 1 and compatibility_score >= 50:
+            return "Moderate advancement potential - focus on skill development and experience building"
+        else:
+            return "Limited immediate advancement potential - prioritize foundational skill development"
+    
     def _generate_typical_projects(self, role_key):
         """Generate typical project examples for each role"""
         project_examples = {
