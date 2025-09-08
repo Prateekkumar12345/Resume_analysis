@@ -83,18 +83,47 @@ class ResumeParser:
             contact_info['email'] = None
             contact_info['email_count'] = 0
         
-        # Phone number extraction with formatting
-        phones = re.findall(self.patterns['phone'], text)
+        # Enhanced phone number extraction with international format support
+        phone_patterns = [
+            r'(\+\d{1,3}[-.\s]?\(?\d{1,4}\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4})',  # International format
+            r'(\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4})',  # Standard US format
+            r'(\d{5}[-.\s]?\d{5})',  # Indian format (10 digits, sometimes with separator)
+            r'(\d{3}[-.\s]?\d{3}[-.\s]?\d{4})'  # Standard format without country code
+        ]
+        
+        phones = []
+        for pattern in phone_patterns:
+            phones.extend(re.findall(pattern, text))
+        
         if phones:
             # Clean and format phone numbers
             clean_phones = [self._clean_phone_number(phone) for phone in phones]
             contact_info['phone'] = clean_phones[0] if clean_phones else None
             contact_info['phone_count'] = len(clean_phones)
+            contact_info['phone_numbers'] = clean_phones  # Store all found numbers
         else:
             contact_info['phone'] = None
             contact_info['phone_count'] = 0
+            contact_info['phone_numbers'] = []
         
         return contact_info
+    
+    def _clean_phone_number(self, phone):
+        
+        """Clean and format phone number with international support"""
+        if isinstance(phone, tuple):
+            phone = ''.join(phone)
+    
+    # Remove all non-digits except + for international numbers
+        if phone.startswith('+'):
+            cleaned = re.sub(r'[^\d+]', '', phone)
+        else:
+            cleaned = re.sub(r'[^\d]', '', phone)
+    
+    # Validate length
+        if len(cleaned) >= 10:
+            return cleaned
+        return None
     
     def _extract_skills_analysis(self, text):
         """Comprehensive skills extraction and analysis"""
@@ -559,3 +588,5 @@ class ResumeParser:
         summary['professional_maturity'] = (sum(maturity_indicators) / len(maturity_indicators)) * 100
         
         return summary
+
+
